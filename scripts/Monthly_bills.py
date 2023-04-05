@@ -1,6 +1,7 @@
 import json
 import tkinter as tk
 from tkinter import ttk
+from functools import partial
 
 class Monthly_bills:
    def __init__(self, window, monthly, year):
@@ -36,39 +37,68 @@ class Monthly_bills:
       self.rotulo.grid(row=0, column=0)
 
       # Criando o Treeview com duas colunas
-      self.bills_list = ttk.Treeview(frame, columns=("col1", "col2"), show="headings")
+      self.bills_list = ttk.Treeview(frame, columns=("col1", "col2", "col3"), show="headings")
       self.bills_list.grid(row=1, column=0)
 
       # Definindo o cabeçalho das colunas
-      self.bills_list.heading("#1", text="Conta")
-      self.bills_list.heading("#2", text="Valor")
+      self.bills_list.heading("#1", text="ID")
+      self.bills_list.heading("#2", text="Conta")
+      self.bills_list.heading("#3", text="Valor")
 
       # Definindo largura das colunas
       self.bills_list.column("#0", width=0, stretch=tk.NO)
-      self.bills_list.column("#2", width=80)
+      self.bills_list.column("#3", width=80)
+      self.bills_list.column("#1", width=30)
 
       # Adiciona as contas recorrentes no listbox
       for i in bills:
-         self.bills_list.insert("", tk.END, values=(i['name'], str(f"R$ {'{:.2f}'.format(i['value'])}")))
+         self.bills_list.insert("", tk.END, values=(i['id'], i['name'], str(f"R$ {'{:.2f}'.format(i['value'])}")))
 
       # Associação da função on_select() ao evento de seleção
-      # bills.bind("<<TreeviewSelect>>", self.on_select(bills))
+      self.bills_list.bind("<<TreeviewSelect>>", self.on_select)   
 
    # Mostra a conta selecionada
    def on_select(self, event):
-      item = event.focus()
+      item = self.bills_list.focus()
+      self.Id = self.bills_list.item(item)['values'][0]
+      self.description = self.bills_list.item(item)['values'][1]
+      self.value = self.bills_list.item(item)['values'][2]
 
       # Criação do popup
       self.bills_edit_popup = tk.Tk()
       self.bills_edit_popup.title("Bills Edit")
       self.bills_edit_popup.geometry("300x100")
 
-      print(item)
+      # Campo de descrição
+      self.description_label = tk.Label(self.bills_edit_popup, text="Descrição")
+      self.description_label.grid(row=0, column=0)
+      self.description_entry = tk.Entry(self.bills_edit_popup, width=30)
+      self.description_entry.grid(row=0, column=1)
+      self.description_entry.insert(0, self.description)
 
-      # self.entry = tk.Entry(self.bills_edit_popup, width=30)
-      # self.entry.grid(row=0, column=1)
-      # self.entry.insert(0, self.bills_list.item(item)['values'][0])
+      # Campo de valor
+      self.value_label = tk.Label(self.bills_edit_popup, text="Valor")
+      self.value_label.grid(row=1, column=0)
+      self.value_entry = tk.Entry(self.bills_edit_popup, width=30)
+      self.value_entry.grid(row=1, column=1)
+      self.value_entry.insert(0, self.value)
+
+      # Botão que atualiza a conta
+      self.update = tk.Button(
+         self.bills_edit_popup, 
+         text="Atualizar", 
+         command=partial(
+            self.update_bill, 
+            self.Id, 
+            self.value_entry, 
+            self.description_entry
+         )
+      )
+
+      self.update.grid(row=2, column=1)
 
       self.bills_edit_popup.mainloop()
       # print("Item selecionado:", self.bills_list.item(item)['values'])
-         
+
+   def update_bill(self, Id, desc, val):
+      print(Id, desc.get(), val.get())
