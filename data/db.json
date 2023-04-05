@@ -1,8 +1,15 @@
-[
-   {
-      "name": "Fatura do cartão", 
-      "value": 430.98,
-      "monthly": "April",
-      "year": 2023
+{
+   "2023": {
+      "January": [],
+      "February": [],
+      "March": [],
+      "April": [
+         {
+            "id": 0,
+            "name": "Fatura do cartao", 
+            "value": 430.98,
+            "type": "Compras"
+         }
+      ]
    }
-]
+}
